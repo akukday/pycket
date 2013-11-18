@@ -4,7 +4,7 @@ with the session and notification managers.
 '''
 from copy import copy
 import pickle
-
+from collections import defaultdict
 
 class Driver(object):
     EXPIRE_SECONDS = 24 * 60 * 60
@@ -39,20 +39,20 @@ class InMemoryDriver(Driver):
     In-memory storage driver
     """
 
-    __storage = {}
+    __storage = defaultdict(dict)
 
     def __init__(self, settings):
         self.settings = settings
 
     def get(self, session_id):
-        return self.__storage.get(session_id)
+        return self.__storage[session_id]
 
     def set(self, session_id, session):
         self.__storage[session_id] = session
 
     @classmethod
     def reset_storage(cls):
-        cls.__storage = {}
+        cls.__storage = defaultdict(dict)
 
 
 class RedisDriver(Driver):
