@@ -34,6 +34,27 @@ class Driver(object):
         self._set_and_expire(session_id, pickled_session)
 
 
+class InMemoryDriver(Driver):
+    """
+    In-memory storage driver
+    """
+
+    __storage = {}
+
+    def __init__(self, settings):
+        self.settings = settings
+
+    def get(self, session_id):
+        return self.__storage.get(session_id)
+
+    def set(self, session_id, session):
+        self.__storage[session_id] = session
+
+    @classmethod
+    def reset_storage(cls):
+        cls.__storage = {}
+
+
 class RedisDriver(Driver):
     DEFAULT_STORAGE_IDENTIFIERS = {
         'db_sessions': 0,
@@ -92,6 +113,9 @@ class DriverFactory(object):
                 del storage_settings[storage_category]
 
         return RedisDriver(storage_settings)
+
+    def _create_inmemory(self, storage_settings, storage_category):
+        return InMemoryDriver(storage_settings)
 
     def _create_memcached(self, storage_settings, storage_category):
         return MemcachedDriver(storage_settings)
